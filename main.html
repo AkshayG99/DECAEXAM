@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Quiz Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #fca311;
+            --dark: #14213d;
+            --light: #f8f9fa;
+            --gray: #e5e5e5;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --smooth: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .logo {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .logo h1 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+            transition: var(--smooth);
+        }
+
+        .card-header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .form-group i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--gray);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: var(--smooth);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+            outline: none;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--smooth);
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .alert-warning {
+            background-color: rgba(252, 163, 17, 0.1);
+            border: 1px solid rgba(252, 163, 17, 0.3);
+            color: #d35400;
+        }
+
+        .alert-danger {
+            background-color: rgba(247, 37, 133, 0.1);
+            border: 1px solid rgba(247, 37, 133, 0.3);
+            color: var(--danger);
+            display: none;
+        }
+
+        .alert-success {
+            background-color: rgba(76, 201, 240, 0.1);
+            border: 1px solid rgba(76, 201, 240, 0.3);
+            color: #0096c7;
+        }
+
+        #quizContainer {
+            width: 100%;
+            max-width: 900px;
+            display: none;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .timer-container {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .timer-container i {
+            margin-right: 10px;
+            color: var(--danger);
+        }
+
+        #timer {
+            color: var(--danger);
+        }
+
+        .user-info {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info i {
+            margin-right: 10px;
+            color: var(--success);
+        }
+
+        .warning-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            display: none;
+            border-left: 5px solid var(--warning);
+        }
+
+        .override-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .form-iframe {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+
+        .time-up-alert {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--danger);
+        }
+
+        .time-up-alert h3 {
+            color: var(--danger);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .time-up-alert p {
+            margin-bottom: 10px;
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .quiz-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .timer-container, .user-info {
+                justify-content: center;
+            }
+            
+            .logo h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <h1>CPSS DECA ENTRANCE EXAM PORTAL</h1>
+        <p></p>
+    </div>
+
+    <!-- Password Prompt -->
+    <div class="card" id="passwordContainer">
+        <div class="card-header">
+            <h2><i class="fas fa-lock"></i> Quiz Access</h2>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="nameInput"><i class="fas fa-user"></i> Your Full Name</label>
+                <input type="text" id="nameInput" class="form-control" placeholder="Enter your full name" autocomplete="name">
+            </div>
+            
+            <div class="form-group">
+                <label for="passwordInput"><i class="fas fa-key"></i> Quiz Password</label>
+                <input type="password" id="passwordInput" class="form-control" placeholder="Enter password" autocomplete="current-password">
+            </div>
+            
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>Important:</strong> Any attempts to switch tabs result in disqualification. All activities are logged and monitored.
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="checkPassword()">
+                <i class="fas fa-play-circle"></i> Continue to Quiz
+            </button>
+            
+            <div class="alert alert-danger" id="error">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>Incorrect password. Please try again.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Container -->
+    <div id="quizContainer">
+        <div class="quiz-header">
+            <div class="timer-container">
+                <i class="fas fa-clock"></i>
+                <span id="timer">Time Remaining: 10:00</span>
+            </div>
+            
+            <div class="user-info">
+                <i class="fas fa-user-check"></i>
+                <span id="userDisplay">User Name</span>
+            </div>
+        </div>
+        
+        <div class="warning-panel" id="warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>You switched tabs! Please return to the quiz.</span>
+        </div>
+        
+        <div class="override-panel" id="overrideContainer">
+            <h3><i class="fas fa-user-lock"></i> Staff Override Required</h3>
+            <p>Please enter the override code to continue</p>
+            <div style="max-width: 300px; margin: 15px auto;">
+                <input type="password" id="overrideInput" class="form-control" placeholder="Enter override code">
+            </div>
+            <button class="btn btn-primary" id="unlockButton" onclick="unlockForm()" style="max-width: 200px; margin: 0 auto;">
+                <i class="fas fa-lock-open"></i> Unlock Form
+            </button>
+        </div>
+        
+        <div class="form-iframe">
+            <iframe id="googleForm" src="https://docs.google.com/forms/d/e/1FAIpQLSfscydSOGqIdCTWo3hMme0AKbsrezcz1bubzjj5lr7Le2axvg/viewform?embedded=true" width="100%" height="100%" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        </div>
+    </div>
+
+    <script>
+        // Constants and configuration
+        const CONFIG = {
+            PASSWORD: "quiz123", // Change this to your desired password
+            OVERRIDE_CODE: "DECA2023",
+            TOTAL_TIME: 10 * 60, // 10 minutes in seconds
+            MAX_TAB_SWITCHES: 1
+        };
+
+        // State management
+        let quizState = {
+            totalTime: CONFIG.TOTAL_TIME,
+            countdown: null,
+            tabSwitchCount: 0,
+            isLocked: false,
+            userName: ""
+        };
+
+        // DOM elements cache
+        const elements = {
+            passwordContainer: document.getElementById("passwordContainer"),
+            quizContainer: document.getElementById("quizContainer"),
+            nameInput: document.getElementById("nameInput"),
+            passwordInput: document.getElementById("passwordInput"),
+            error: document.getElementById("error"),
+            timer: document.getElementById("timer"),
+            warning: document.getElementById("warning"),
+            overrideContainer: document.getElementById("overrideContainer"),
+            overrideInput: document.getElementById("overrideInput"),
+            googleForm: document.getElementById("googleForm"),
+            userDisplay: document.getElementById("userDisplay")
+        };
+
+        // ---------- Password Check ----------
+        function checkPassword() {
+            const passwordInput = elements.passwordInput.value;
+            const nameInput = elements.nameInput.value.trim();
+
+            // Validate inputs
+            if (!nameInput) {
+                showError("Please enter your name.");
+                return;
+            }
+
+            if (passwordInput !== CONFIG.PASSWORD) {
+                showError("Incorrect password. Please try again.");
+                return;
+            }
+
+            // Store name for later use
+            quizState.userName = nameInput;
+            localStorage.setItem('quizUserName', nameInput);
+            elements.userDisplay.textContent = nameInput;
+            
+            // Set up page protection
+            setupPageProtection();
+            
+            // Show quiz interface
+            elements.passwordContainer.style.display = "none";
+            elements.quizContainer.style.display = "block";
+            
+            // Start the timer
+            startTimer();
+        }
+
+        function showError(message) {
+            elements.error.querySelector('div').textContent = message;
+            elements.error.style.display = "flex";
+            
+            // Auto-hide error after 3 seconds
+            setTimeout(() => {
+                elements.error.style.display = "none";
+            }, 3000);
+        }
+
+        function setupPageProtection() {
+            // Handle tab switching and page close
+            window.addEventListener('beforeunload', handleBeforeUnload);
+            
+            // Add event listener for form submission
+            window.addEventListener('message', handleFormMessage);
+            
+            // Tab visibility change detection
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+        }
+
+        function handleBeforeUnload(e) {
+            if (elements.quizContainer.style.display === "block") {
+                e.preventDefault();
+                e.returnValue = 'Are you sure you want to leave? Your quiz will be submitted automatically.';
+                return e.returnValue;
+            }
+        }
+
+        function handleFormMessage(event) {
+            // Listen for messages from the iframe
+            if (event.data === 'formSubmitted') {
+                // Form was submitted, allow leaving the page
+                window.removeEventListener('beforeunload', handleBeforeUnload);
+            }
+        }
+
+        // ---------- Countdown Timer ----------
+        function startTimer() {
+            quizState.countdown = setInterval(() => {
+                quizState.totalTime--;
+                
+                const minutes = Math.floor(quizState.totalTime / 60);
+                const seconds = quizState.totalTime % 60;
+                elements.timer.textContent = `Time Remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (quizState.totalTime <= 0) {
+                    clearInterval(quizState.countdown);
+                    handleTimeExpired();
+                }
+            }, 1000);
+        }
+
+        function handleTimeExpired() {
+            // Create time's up alert
+            const timeUpAlert = document.createElement('div');
+            timeUpAlert.className = 'time-up-alert';
+            timeUpAlert.innerHTML = `
+                <h3><i class="fas fa-hourglass-end"></i> TIME'S UP!</h3>
+                <p>Please click the <strong>Submit</strong> button in the form below to save your answers.</p>
+                <p>Your responses will not be saved if you close this page without submitting.</p>
+                <p><strong>YOU MUST SHOW A DECA EXEC THIS SCREEN.</strong></p>
+                <div style="margin: 20px 0; font-size: 2rem;"><i class="fas fa-arrow-down"></i></div>
+            `;
+            
+            // Insert the alert
+            elements.quizContainer.insertBefore(timeUpAlert, elements.googleForm.parentElement);
+            
+            // Scroll to the form
+            elements.googleForm.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ---------- Tab Switch Detection ----------
+        function handleVisibilityChange() {
+            if (document.hidden && !quizState.isLocked) {
+                quizState.tabSwitchCount++;
+                elements.warning.style.display = 'flex';
+                elements.warning.querySelector('span').textContent = 
+                    `You switched tabs! (${quizState.tabSwitchCount}/${CONFIG.MAX_TAB_SWITCHES} warnings)`;
+                
+                if (quizState.tabSwitchCount >= CONFIG.MAX_TAB_SWITCHES) {
+                    lockForm();
+                }
+            } else {
+                elements.warning.style.display = 'none';
+            }
+        }
+
+        function lockForm() {
+            if (quizState.isLocked) return;
+            
+            quizState.isLocked = true;
+            elements.googleForm.style.pointerEvents = 'none';
+            elements.googleForm.style.opacity = '0.5';
+            elements.warning.style.display = 'flex';
+            elements.overrideContainer.style.display = 'block';
+            elements.overrideInput.focus();
+        }
+
+        function unlockForm() {
+            const overrideCode = elements.overrideInput.value;
+            
+            if (overrideCode === CONFIG.OVERRIDE_CODE) {
+                elements.googleForm.style.pointerEvents = 'auto';
+                elements.googleForm.style.opacity = '1';
+                elements.overrideContainer.style.display = 'none';
+                elements.warning.style.display = 'none';
+                elements.overrideInput.value = '';
+                quizState.tabSwitchCount = 0;
+                quizState.isLocked = false;
+            } else {
+                elements.warning.style.display = 'flex';
+                elements.warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Invalid override code. Please try again.</span>';
+                elements.overrideInput.value = '';
+                elements.overrideInput.focus();
+            }
+        }
+
+        // Handle Enter key in password and override fields
+        elements.passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        elements.overrideInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                unlockForm();
+            }
+        });
+    </script>
+</body>
+</html>
