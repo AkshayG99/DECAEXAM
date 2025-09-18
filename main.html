@@ -63,7 +63,7 @@
         
         <div class="warning-panel" id="warning">
             <i class="fas fa-exclamation-triangle"></i>
-            <span>You switched tabs! Please return to the quiz.</span>
+            <span>You have exceeded your allowed tab switch. Staff override required.</span>
         </div>
         
         <div class="override-panel" id="overrideContainer">
@@ -87,18 +87,16 @@
         const CONFIG = {
             PASSWORD: "quiz123", // Change this to your desired password
             OVERRIDE_CODE: "DECA2023",
-            TOTAL_TIME: 0.5 * 60, // 10 minutes in seconds
-            MAX_TAB_SWITCHES: 1
+            TOTAL_TIME: 0.5 * 60 // 0.5 minutes in seconds
         };
 
         // State management
         let quizState = {
             totalTime: CONFIG.TOTAL_TIME,
             countdown: null,
-            tabSwitchCount: 0,
             isLocked: false,
             userName: "",
-            firstSwitchIgnored: false // New flag to track if first switch was ignored
+            firstSwitchIgnored: false // Flag to track if first switch was used
         };
 
         // DOM elements cache
@@ -209,7 +207,7 @@
                 <h3><i class="fas fa-hourglass-end"></i> TIME'S UP!</h3>
                 <p>Please click the <strong>Submit</strong> button in the form below to save your answers.</p>
                 <p>Your responses will not be saved if you close this page without submitting.</p>
-                <p><strong>YOU MUST SHOW A DECA EXEC THIS SCREEN.</strong></p>
+                <p><strong>YOU MUST SHOW A DECA EXEC THIS SCREEN AFTER CLICKING SUBMIT.</strong></p>
                 <div style="margin: 20px 0; font-size: 2rem;"><i class="fas fa-arrow-down"></i></div>
             `;
             
@@ -223,20 +221,14 @@
         // ---------- Tab Switch Detection ----------
         function handleVisibilityChange() {
             if (document.hidden && !quizState.isLocked) {
-                // Ignore the first tab switch
+                // Allow the first tab switch without any warning
                 if (!quizState.firstSwitchIgnored) {
                     quizState.firstSwitchIgnored = true;
                     return;
                 }
                 
-                quizState.tabSwitchCount++;
-                elements.warning.style.display = 'flex';
-                elements.warning.querySelector('span').textContent = 
-                    `You switched tabs! (${quizState.tabSwitchCount}/${CONFIG.MAX_TAB_SWITCHES} warnings)`;
-                
-                if (quizState.tabSwitchCount >= CONFIG.MAX_TAB_SWITCHES) {
-                    lockForm();
-                }
+                // After the first switch, require override for every subsequent switch
+                lockForm();
             } else {
                 elements.warning.style.display = 'none';
             }
@@ -249,6 +241,7 @@
             elements.googleForm.style.pointerEvents = 'none';
             elements.googleForm.style.opacity = '0.5';
             elements.warning.style.display = 'flex';
+            elements.warning.querySelector('span').textContent = 'You have exceeded your allowed tab switch. Staff override required.';
             elements.overrideContainer.style.display = 'block';
             elements.overrideInput.focus();
         }
@@ -262,9 +255,8 @@
                 elements.overrideContainer.style.display = 'none';
                 elements.warning.style.display = 'none';
                 elements.overrideInput.value = '';
-                quizState.tabSwitchCount = 0;
                 quizState.isLocked = false;
-                quizState.firstSwitchIgnored = false; // Reset the flag
+                // Note: firstSwitchIgnored remains true - no additional free switches after override
             } else {
                 elements.warning.style.display = 'flex';
                 elements.warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Invalid override code. Please try again.</span>';
@@ -283,6 +275,154 @@
         elements.overrideInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 unlockForm();
+            }
+        });
+
+        // ---------- Security Measures ----------
+        
+        // Disable right-click context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Disable text selection (except in input fields)
+        document.addEventListener('selectstart', function(e) {
+            // Allow selection in input fields, textareas, and contenteditable elements
+            if (e.target.tagName === 'INPUT' || 
+                e.target.tagName === 'TEXTAREA' || 
+                e.target.contentEditable === 'true' ||
+                e.target.closest('input') ||
+                e.target.closest('textarea') ||
+                e.target.closest('[contenteditable="true"]')) {
+                return true;
+            }
+            e.preventDefault();
+            return false;
+        });
+
+        // Disable dragging
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Disable drag and drop
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Block keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Block F12 (Developer Tools)
+            if (e.key === 'F12') {
+                e.preventDefault();
+                return false;
+            }
+
+            // Block Ctrl+Shift+I (Developer Tools)
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                e.preventDefault();
+                return false;
+            }
+
+            // Block Ctrl+Shift+J (Console)
+            if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+                e.preventDefault();
+                return false;
+            }
+
+            // Block Ctrl+U (View Source)
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                return false;
+            }
+
+            // Block Ctrl+S (Save Page)
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                return false;
+            }
+
+            // Block Ctrl+A (Select All) - except in input fields
+            if (e.ctrlKey && e.key === 'a') {
+                if (!e.target.tagName === 'INPUT' && 
+                    !e.target.tagName === 'TEXTAREA' && 
+                    e.target.contentEditable !== 'true' &&
+                    !e.target.closest('input') &&
+                    !e.target.closest('textarea') &&
+                    !e.target.closest('[contenteditable="true"]')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+
+            // Block Ctrl+C (Copy) - except in input fields
+            if (e.ctrlKey && e.key === 'c') {
+                if (!e.target.tagName === 'INPUT' && 
+                    !e.target.tagName === 'TEXTAREA' && 
+                    e.target.contentEditable !== 'true' &&
+                    !e.target.closest('input') &&
+                    !e.target.closest('textarea') &&
+                    !e.target.closest('[contenteditable="true"]')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+
+            // Block Ctrl+V (Paste) - except in input fields
+            if (e.ctrlKey && e.key === 'v') {
+                if (!e.target.tagName === 'INPUT' && 
+                    !e.target.tagName === 'TEXTAREA' && 
+                    e.target.contentEditable !== 'true' &&
+                    !e.target.closest('input') &&
+                    !e.target.closest('textarea') &&
+                    !e.target.closest('[contenteditable="true"]')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+
+            // Block Ctrl+X (Cut) - except in input fields
+            if (e.ctrlKey && e.key === 'x') {
+                if (!e.target.tagName === 'INPUT' && 
+                    !e.target.tagName === 'TEXTAREA' && 
+                    e.target.contentEditable !== 'true' &&
+                    !e.target.closest('input') &&
+                    !e.target.closest('textarea') &&
+                    !e.target.closest('[contenteditable="true"]')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
+
+        // Additional security: Disable common developer shortcuts
+        document.addEventListener('keyup', function(e) {
+            // Block Alt+Tab simulation attempts
+            if (e.altKey && e.key === 'Tab') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Disable print functionality
+        window.addEventListener('beforeprint', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Disable print shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                return false;
             }
         });
     </script>
