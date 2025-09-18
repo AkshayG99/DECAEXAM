@@ -5,285 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Quiz Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #fca311;
-            --dark: #14213d;
-            --light: #f8f9fa;
-            --gray: #e5e5e5;
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            --smooth: all 0.3s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            color: var(--dark);
-        }
-
-        .logo {
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .logo h1 {
-            font-weight: 800;
-            font-size: 2.5rem;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .logo p {
-            color: #6c757d;
-            font-size: 1.1rem;
-        }
-
-        .card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-            width: 100%;
-            max-width: 500px;
-            transition: var(--smooth);
-        }
-
-        .card-header {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
-
-        .card-body {
-            padding: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-            position: relative;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-        }
-
-        .form-group i {
-            margin-right: 10px;
-            color: var(--primary);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid var(--gray);
-            border-radius: 10px;
-            font-size: 16px;
-            transition: var(--smooth);
-        }
-
-        .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-            outline: none;
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--smooth);
-        }
-
-        .btn-primary {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: white;
-            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(67, 97, 238, 0.4);
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: flex-start;
-        }
-
-        .alert-warning {
-            background-color: rgba(252, 163, 17, 0.1);
-            border: 1px solid rgba(252, 163, 17, 0.3);
-            color: #d35400;
-        }
-
-        .alert-danger {
-            background-color: rgba(247, 37, 133, 0.1);
-            border: 1px solid rgba(247, 37, 133, 0.3);
-            color: var(--danger);
-            display: none;
-        }
-
-        .alert-success {
-            background-color: rgba(76, 201, 240, 0.1);
-            border: 1px solid rgba(76, 201, 240, 0.3);
-            color: #0096c7;
-        }
-
-        #quizContainer {
-            width: 100%;
-            max-width: 900px;
-            display: none;
-        }
-
-        .quiz-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .timer-container {
-            background: white;
-            padding: 15px 25px;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            display: flex;
-            align-items: center;
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-
-        .timer-container i {
-            margin-right: 10px;
-            color: var(--danger);
-        }
-
-        #timer {
-            color: var(--danger);
-        }
-
-        .user-info {
-            background: white;
-            padding: 15px 25px;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            display: flex;
-            align-items: center;
-        }
-
-        .user-info i {
-            margin-right: 10px;
-            color: var(--success);
-        }
-
-        .warning-panel {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 20px;
-            display: none;
-            border-left: 5px solid var(--warning);
-        }
-
-        .override-panel {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 20px;
-            display: none;
-            text-align: center;
-        }
-
-        .form-iframe {
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-        }
-
-        iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
-        }
-
-        .time-up-alert {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            text-align: center;
-            margin-bottom: 20px;
-            border-left: 5px solid var(--danger);
-        }
-
-        .time-up-alert h3 {
-            color: var(--danger);
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-
-        .time-up-alert p {
-            margin-bottom: 10px;
-            color: #6c757d;
-        }
-
-        @media (max-width: 768px) {
-            .quiz-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .timer-container, .user-info {
-                justify-content: center;
-            }
-            
-            .logo h1 {
-                font-size: 2rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="logo">
         <h1>CPSS DECA ENTRANCE EXAM PORTAL</h1>
-        <p></p>
+        <p>Reloading Page/Switching Tabs/Not Submitting Results in Disqualification</p>
     </div>
 
     <!-- Password Prompt -->
@@ -361,7 +88,7 @@
             PASSWORD: "quiz123", // Change this to your desired password
             OVERRIDE_CODE: "DECA2023",
             TOTAL_TIME: 0.5 * 60, // 10 minutes in seconds
-            MAX_TAB_SWITCHES: 2
+            MAX_TAB_SWITCHES: 1
         };
 
         // State management
@@ -370,7 +97,8 @@
             countdown: null,
             tabSwitchCount: 0,
             isLocked: false,
-            userName: ""
+            userName: "",
+            firstSwitchIgnored: false // New flag to track if first switch was ignored
         };
 
         // DOM elements cache
@@ -495,6 +223,12 @@
         // ---------- Tab Switch Detection ----------
         function handleVisibilityChange() {
             if (document.hidden && !quizState.isLocked) {
+                // Ignore the first tab switch
+                if (!quizState.firstSwitchIgnored) {
+                    quizState.firstSwitchIgnored = true;
+                    return;
+                }
+                
                 quizState.tabSwitchCount++;
                 elements.warning.style.display = 'flex';
                 elements.warning.querySelector('span').textContent = 
@@ -530,6 +264,7 @@
                 elements.overrideInput.value = '';
                 quizState.tabSwitchCount = 0;
                 quizState.isLocked = false;
+                quizState.firstSwitchIgnored = false; // Reset the flag
             } else {
                 elements.warning.style.display = 'flex';
                 elements.warning.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Invalid override code. Please try again.</span>';
