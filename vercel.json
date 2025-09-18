@@ -2,11 +2,12 @@
     "version": 2,
     "builds": [
       {
-        "src": "main.html",
+        "src": "*.{html,css,js}",
         "use": "@vercel/static"
       }
     ],
     "routes": [
+      { "src": "/(.*.css)", "dest": "/$1" },
       { "src": "/(.*)", "dest": "/main.html" }
     ]
   }
